@@ -1,0 +1,6 @@
+*.csv
+*.zip
+*.tar.gz
+logs/
+__pycache__/
+hub/
