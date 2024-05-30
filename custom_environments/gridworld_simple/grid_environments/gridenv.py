@@ -18,22 +18,7 @@ class GridEnv(Env):
 
         # Observations are dictionaries with the agent's and the target's location.
         # Each location is encoded as an element of {0, ..., `size`}^2, i.e. MultiDiscrete([size, size]).
-        self.observation_space = spaces.Dict(
-            {
-                "agent": spaces.Box(
-                    low=np.array([0, 0]),
-                    high=np.array([self.size_x, self.size_y]),
-                    shape=(2,),
-                    dtype=int,
-                ),
-                "target": spaces.Box(
-                    low=np.array([0, 0]),
-                    high=np.array([self.size_x, self.size_y]),
-                    shape=(2,),
-                    dtype=int,
-                ),
-            }
-        )
+        self.observation_space = spaces.Discrete(size_x * size_y)
 
         self.action_space = spaces.Discrete(4)
         """
@@ -55,7 +40,8 @@ class GridEnv(Env):
         self.clock = None
 
     def _get_observation(self):
-        return {"agent": self._agent_location, "target": self._target_location}
+        # The observation is a value representing the player’s current position as current_row * nrows + current_col (where both the row and col start at 0).
+        return self._agent_location[0] * self.size_y + self._agent_location[1]
 
     def _get_info(self):
         return {
@@ -74,7 +60,7 @@ class GridEnv(Env):
         if self.render_mode == "rgb_array":
             return self._render_frame()
 
-    def _render_frame(self):
+    def _render_frame(self, negative_reward=None):
         if self.window is None and self.render_mode == "human":
             pygame.display.init()
             self.window = pygame.display.set_mode(
@@ -88,6 +74,19 @@ class GridEnv(Env):
         pix_square_size = (
             self.window_width // self.size_x
         )  # The size of a single grid square in pixels
+
+        if negative_reward is not None:
+            for x in range(self.size_x):
+                for y in range(self.size_y):
+                    if negative_reward[x, y]:
+                        pygame.draw.rect(
+                            canvas,
+                            (65, 65, 65),
+                            pygame.Rect(
+                                pix_square_size * np.array([x, y]),
+                                (pix_square_size, pix_square_size),
+                            ),
+                        )
 
         # First we draw the target
         pygame.draw.rect(
