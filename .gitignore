@@ -6,3 +6,12 @@ __pycache__/
 hub/
 *.pkl
 *.mp4
+*.txt
+ppo_optuna/
+ppoPandaPickAndPlace-v3/
+ppoPandaPickAndPlaceDense-v3/
+ppoPandaSlide-v3/
+sacPandaSlide-v3/
+tqcPandaSlide-v3/
+tqcPandaPickAndPlace-v3/
+tqcPandaPickAndPlaceDense-v3/
